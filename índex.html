@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0D1F14">
+<title>SoloForte Investimentos</title>
+<link rel="manifest" href="manifest.json">
+<style>
+  :root {
+    --bg: #F2F2F7;
+    --card: #FFFFFF;
+    --card2: #F8F8FA;
+    --hero: #0D1F14;
+    --hero2: #1C3526;
+    --green: #34C759;
+    --green-dark: #248A3D;
+    --green-soft: #E8F5E9;
+    --blue: #007AFF;
+    --red: #FF3B30;
+    --red-soft: #FFEBEE;
+    --text: #1D1D1F;
+    --text2: #86868B;
+    --text3: #C7C7CC;
+    --border: #E5E5E7;
+    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+  /* ── SCREENS ── */
+  .screen { display: none; flex-direction: column; min-height: 100vh; padding-bottom: calc(80px + var(--safe-bottom)); }
+  .screen.active { display: flex; }
+
+  /* ── HEADER ── */
+  .app-header { background: var(--card); padding: 16px 20px 12px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
+  .app-header h1 { font-size: 1.25rem; font-weight: 700; color: var(--text); }
+  .app-header .subtitle { font-size: 0.75rem; color: var(--text2); margin-top: 1px; }
+  .header-row { display: flex; justify-content: space-between; align-items: center; }
+  .header-btn { width: 32px; height: 32px; border-radius: 50%; border: none; background: var(--bg); color: var(--text2); font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .header-btn:active { transform: scale(0.92); }
+
+  /* ── TAB BAR ── */
+  .tab-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.92); backdrop-filter: blur(20px); border-top: 1px solid var(--border); display: flex; padding-bottom: var(--safe-bottom); z-index: 200; }
+  .tab-btn { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 8px 4px 4px; border: none; background: none; cursor: pointer; gap: 2px; transition: all 0.15s; }
+  .tab-btn .tab-icon { font-size: 1.35rem; transition: transform 0.15s; }
+  .tab-btn .tab-label { font-size: 0.6rem; font-weight: 500; color: var(--text2); letter-spacing: 0.2px; }
+  .tab-btn.active .tab-icon { transform: scale(1.1); }
+  .tab-btn.active .tab-label { color: var(--green-dark); font-weight: 700; }
+
+  /* ── SCROLL AREA ── */
+  .scroll-area { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+
+  /* ── HERO CARD ── */
+  .hero-card { background: linear-gradient(135deg, var(--hero) 0%, var(--hero2) 100%); border-radius: 18px; padding: 24px 20px 20px; color: white; position: relative; overflow: hidden; }
+  .hero-card::before { content: ''; position: absolute; top: -30px; right: -30px; width: 120px; height: 120px; background: rgba(52,199,89,0.12); border-radius: 50%; }
+  .hero-card::after { content: ''; position: absolute; bottom: -20px; left: -20px; width: 80px; height: 80px; background: rgba(52,199,89,0.08); border-radius: 50%; }
+  .hero-label { font-size: 0.65rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.6); margin-bottom: 6px; }
+  .hero-value { font-size: 2rem; font-weight: 700; letter-spacing: -0.5px; position: relative; z-index: 1; }
+  .hero-sub { font-size: 0.75rem; color: rgba(255,255,255,0.55); margin-top: 4px; }
+  .hero-row { display: flex; gap: 20px; margin-top: 18px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1); }
+  .hero-stat { flex: 1; }
+  .hero-stat-label { font-size: 0.6rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.5px; }
+  .hero-stat-value { font-size: 0.95rem; font-weight: 600; color: white; margin-top: 2px; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 4px; background: rgba(52,199,89,0.2); border: 1px solid rgba(52,199,89,0.35); border-radius: 20px; padding: 3px 10px; font-size: 0.7rem; color: var(--green); font-weight: 600; margin-top: 8px; }
+
+  /* ── RENDA CARD ── */
+  .renda-card { background: var(--green-soft); border-radius: 14px; padding: 16px 18px; border: 1px solid rgba(52,199,89,0.2); }
+  .renda-label { font-size: 0.65rem; font-weight: 600; color: var(--green-dark); text-transform: uppercase; letter-spacing: 0.8px; }
+  .renda-value { font-size: 1.6rem; font-weight: 700; color: var(--green-dark); margin: 4px 0 2px; }
+  .renda-sub { font-size: 0.72rem; color: var(--green-dark); opacity: 0.7; }
+
+  /* ── SECTION HEADER ── */
+  .section-header { font-size: 0.7rem; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.8px; padding: 0 2px; margin-bottom: -4px; }
+
+  /* ── CARD ── */
+  .card { background: var(--card); border-radius: 14px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.03); }
+  .card-row { display: flex; align-items: center; padding: 13px 16px; gap: 12px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.12s; }
+  .card-row:last-child { border-bottom: none; }
+  .card-row:active { background: var(--bg); }
+
+  /* ── ASSET ROW ── */
+  .asset-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--hero); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 800; color: var(--green); letter-spacing: -0.5px; flex-shrink: 0; }
+  .asset-icon.fii { background: linear-gradient(135deg, #1C3526, #0D1F14); }
+  .asset-icon.acao { background: linear-gradient(135deg, #001845, #003087); }
+  .asset-icon.dolar { background: linear-gradient(135deg, #1a1a2e, #16213e); }
+  .asset-info { flex: 1; min-width: 0; }
+  .asset-name { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+  .asset-detail { font-size: 0.7rem; color: var(--text2); margin-top: 1px; }
+  .asset-values { text-align: right; flex-shrink: 0; }
+  .asset-price { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+  .asset-yield { font-size: 0.7rem; font-weight: 600; color: var(--green-dark); background: var(--green-soft); padding: 1px 6px; border-radius: 4px; display: inline-block; margin-top: 2px; }
+  .asset-neg { color: var(--red); background: var(--red-soft); }
+
+  /* ── DISTRIBUIÇÃO ── */
+  .dist-bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; gap: 2px; margin: 12px 16px 4px; }
+  .dist-seg { border-radius: 4px; transition: width 0.4s ease; }
+  .dist-legend { display: flex; flex-wrap: wrap; gap: 8px 16px; padding: 8px 16px 14px; }
+  .dist-item { display: flex; align-items: center; gap: 5px; font-size: 0.68rem; color: var(--text2); }
+  .dist-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── BOTÃO PRIMÁRIO ── */
+  .btn-primary { background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%); color: white; border: none; border-radius: 12px; padding: 14px; font-size: 0.9rem; font-weight: 600; width: 100%; cursor: pointer; box-shadow: 0 4px 12px rgba(52,199,89,0.3); transition: all 0.15s; }
+  .btn-primary:active { transform: scale(0.98); box-shadow: 0 2px 6px rgba(52,199,89,0.2); }
+  .btn-outline { background: white; color: var(--green-dark); border: 1.5px solid var(--green); border-radius: 12px; padding: 12px; font-size: 0.85rem; font-weight: 600; width: 100%; cursor: pointer; transition: all 0.15s; }
+  .btn-outline:active { background: var(--green-soft); }
+  .btn-danger { background: var(--red-soft); color: var(--red); border: 1.5px solid rgba(255,59,48,0.2); border-radius: 10px; padding: 10px 14px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+
+  /* ── MODAL ── */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 500; display: none; align-items: flex-end; }
+  .modal-overlay.open { display: flex; }
+  .modal-sheet { background: var(--card); border-radius: 20px 20px 0 0; padding: 0 0 calc(20px + var(--safe-bottom)); width: 100%; max-height: 90vh; overflow-y: auto; animation: slideUp 0.25s cubic-bezier(.34,1.26,.64,1); }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 12px auto 0; }
+  .modal-header { padding: 16px 20px 12px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .modal-title { font-size: 1rem; font-weight: 700; color: var(--text); }
+  .modal-close { width: 28px; height: 28px; border-radius: 50%; background: var(--bg); border: none; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text2); }
+  .modal-body { padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+
+  /* ── FORM ── */
+  .field-group { display: flex; flex-direction: column; gap: 5px; }
+  .field-label { font-size: 0.72rem; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+  .field-input { border: 1.5px solid var(--border); border-radius: 10px; padding: 11px 13px; font-size: 0.9rem; font-family: var(--font); color: var(--text); background: white; transition: border-color 0.15s, box-shadow 0.15s; outline: none; width: 100%; }
+  .field-input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(52,199,89,0.12); }
+  .field-input[type=number] { max-width: 160px; }
+  select.field-input { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2386868B'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; -webkit-appearance: none; appearance: none; max-width: 100%; }
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* ── INFO ROW ── */
+  .info-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .info-row:last-child { border-bottom: none; }
+  .info-row-label { font-size: 0.8rem; color: var(--text2); }
+  .info-row-value { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+
+  /* ── EMPTY STATE ── */
+  .empty-state { text-align: center; padding: 40px 20px; color: var(--text2); }
+  .empty-icon { font-size: 2.5rem; margin-bottom: 10px; opacity: 0.5; }
+  .empty-title { font-size: 0.9rem; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .empty-sub { font-size: 0.78rem; }
+
+  /* ── FAB ── */
+  .fab { position: fixed; bottom: calc(84px + var(--safe-bottom)); right: 20px; width: 52px; height: 52px; border-radius: 26px; background: linear-gradient(135deg, var(--green), var(--green-dark)); border: none; color: white; font-size: 1.4rem; cursor: pointer; box-shadow: 0 4px 16px rgba(52,199,89,0.4); z-index: 150; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .fab:active { transform: scale(0.93); }
+
+  /* ── ALERT ── */
+  .toast { position: fixed; bottom: calc(90px + var(--safe-bottom)); left: 50%; transform: translateX(-50%) translateY(20px); background: var(--text); color: white; padding: 10px 18px; border-radius: 20px; font-size: 0.8rem; font-weight: 500; opacity: 0; pointer-events: none; transition: all 0.25s; z-index: 999; white-space: nowrap; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── SETTINGS ── */
+  .settings-section { background: var(--card); border-radius: 14px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .settings-row { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px; border-bottom: 1px solid var(--border); gap: 12px; }
+  .settings-row:last-child { border-bottom: none; }
+  .settings-label { font-size: 0.85rem; color: var(--text); }
+  .settings-value { font-size: 0.8rem; color: var(--text2); text-align: right; flex: 1; }
+  .settings-input { border: 1.5px solid var(--border); border-radius: 8px; padding: 7px 10px; font-size: 0.82rem; font-family: var(--font); color: var(--text); background: white; outline: none; flex: 1; max-width: 200px; }
+  .settings-input:focus { border-color: var(--green); }
+
+  /* ── SIMULADOR ── */
+  .sim-result { background: var(--green-soft); border-radius: 12px; padding: 14px 16px; border: 1px solid rgba(52,199,89,0.2); }
+  .sim-result-label { font-size: 0.65rem; font-weight: 600; color: var(--green-dark); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+  .sim-result-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .sim-stat { text-align: center; }
+  .sim-stat-label { font-size: 0.6rem; color: var(--green-dark); opacity: 0.7; margin-bottom: 2px; }
+  .sim-stat-value { font-size: 0.85rem; font-weight: 700; color: var(--green-dark); }
+
+  /* ── DETAIL MODAL ── */
+  .compra-item { background: var(--bg); border-radius: 10px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; }
+  .compra-info { font-size: 0.78rem; color: var(--text); }
+  .compra-date { font-size: 0.68rem; color: var(--text2); margin-top: 1px; }
+  .compra-del { width: 26px; height: 26px; border-radius: 8px; background: var(--red-soft); border: none; color: var(--red); font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+  /* ── USD CARD ── */
+  .usd-hero { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 14px; padding: 18px; color: white; }
+  .usd-flag { font-size: 1.5rem; margin-bottom: 8px; display: block; }
+  .usd-rate { font-size: 0.65rem; color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: 0.8px; }
+  .usd-value { font-size: 1.6rem; font-weight: 700; margin: 2px 0 4px; }
+  .usd-detail { font-size: 0.72rem; color: rgba(255,255,255,0.6); }
+
+  /* ── CHIP FILTER ── */
+  .chip-bar { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+  .chip-bar::-webkit-scrollbar { display: none; }
+  .chip { padding: 5px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; border: 1.5px solid var(--border); background: var(--card); color: var(--text2); cursor: pointer; white-space: nowrap; transition: all 0.12s; }
+  .chip.active { background: var(--hero); border-color: var(--hero); color: var(--green); }
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ============ DASHBOARD ============ -->
+<div class="screen active" id="screen-dashboard">
+  <div class="app-header">
+    <div class="header-row">
+      <div>
+        <h1>SoloForte</h1>
+        <div class="subtitle" id="dash-greeting">Investimentos</div>
+      </div>
+      <button class="header-btn" onclick="refreshQuotes()" title="Atualizar cotações">↻</button>
+    </div>
+  </div>
+  <div class="scroll-area">
+    <!-- Hero -->
+    <div class="hero-card">
+      <div class="hero-label">Patrimônio Total</div>
+      <div class="hero-value" id="dash-patrimonio">R$ 0,00</div>
+      <div class="hero-sub" id="dash-usd-equiv"></div>
+      <div class="hero-row">
+        <div class="hero-stat">
+          <div class="hero-stat-label">FIIs</div>
+          <div class="hero-stat-value" id="dash-total-fii">R$ 0</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-label">Ações</div>
+          <div class="hero-stat-value" id="dash-total-acoes">R$ 0</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-label">Dólar</div>
+          <div class="hero-stat-value" id="dash-total-dolar">$ 0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Renda Mensal -->
+    <div class="renda-card">
+      <div class="renda-label">💰 Renda Mensal FIIs</div>
+      <div class="renda-value" id="dash-renda">R$ 0,00</div>
+      <div class="renda-sub" id="dash-renda-sub">— / mês estimado</div>
+    </div>
+
+    <!-- Distribuição -->
+    <div class="section-header">Distribuição</div>
+    <div class="card">
+      <div class="dist-bar" id="dist-bar">
+        <div class="dist-seg" style="background:#34C759;width:0%" id="dist-fii"></div>
+        <div class="dist-seg" style="background:#007AFF;width:0%" id="dist-acao"></div>
+        <div class="dist-seg" style="background:#5856D6;width:0%" id="dist-dol"></div>
+      </div>
+      <div class="dist-legend">
+        <div class="dist-item"><div class="dist-dot" style="background:#34C759"></div> <span>FIIs <b id="dist-fii-pct">0%</b></span></div>
+        <div class="dist-item"><div class="dist-dot" style="background:#007AFF"></div> <span>Ações <b id="dist-acao-pct">0%</b></span></div>
+        <div class="dist-item"><div class="dist-dot" style="background:#5856D6"></div> <span>Dólar <b id="dist-dol-pct">0%</b></span></div>
+      </div>
+    </div>
+
+    <!-- Top FIIs -->
+    <div class="section-header">Top FIIs por Renda</div>
+    <div class="card" id="dash-top-fiis">
+      <div class="empty-state"><div class="empty-icon">🏢</div><div class="empty-sub">Adicione FIIs para ver aqui</div></div>
+    </div>
+
+    <!-- Cotação USD -->
+    <div class="section-header">Câmbio</div>
+    <div class="usd-hero">
+      <span class="usd-flag">🇺🇸</span>
+      <div class="usd-rate">USD / BRL</div>
+      <div class="usd-value" id="dash-usd-rate">R$ —</div>
+      <div class="usd-detail" id="dash-usd-time">Atualizar para ver cotação</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ FIIs ============ -->
+<div class="screen" id="screen-fiis">
+  <div class="app-header">
+    <div class="header-row">
+      <div><h1>FIIs</h1><div class="subtitle" id="fii-total-header">Renda: R$ 0,00/mês</div></div>
+      <button class="header-btn" onclick="openModal('modal-add-fii')">＋</button>
+    </div>
+  </div>
+  <div class="scroll-area">
+    <!-- Chip filtro segmento -->
+    <div class="chip-bar" id="fii-chips">
+      <div class="chip active" data-seg="Todos" onclick="filterFii('Todos',this)">Todos</div>
+      <div class="chip" data-seg="Logística" onclick="filterFii('Logística',this)">Logística</div>
+      <div class="chip" data-seg="Shoppings" onclick="filterFii('Shoppings',this)">Shoppings</div>
+      <div class="chip" data-seg="CRI" onclick="filterFii('CRI',this)">CRI/CRA</div>
+      <div class="chip" data-seg="Lajes" onclick="filterFii('Lajes',this)">Lajes</div>
+      <div class="chip" data-seg="Híbrido" onclick="filterFii('Híbrido',this)">Híbrido</div>
+      <div class="chip" data-seg="Outros" onclick="filterFii('Outros',this)">Outros</div>
+    </div>
+
+    <!-- Lista FIIs -->
+    <div id="fii-list">
+      <div class="empty-state"><div class="empty-icon">🏢</div><div class="empty-title">Nenhum FII</div><div class="empty-sub">Toque em + para adicionar seu primeiro FII</div></div>
+    </div>
+
+    <!-- Simulador Aportes FII -->
+    <div class="section-header">Simulador de Aportes</div>
+    <div class="card">
+      <div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px;">
+        <div class="row-2">
+          <div class="field-group">
+            <label class="field-label">Aporte/mês (R$)</label>
+            <input class="field-input" type="number" id="sim-aporte" value="500" max="9999999" oninput="calcSim()">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Prazo (meses)</label>
+            <input class="field-input" type="number" id="sim-prazo" value="12" max="360" oninput="calcSim()">
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label">DY médio estimado (% a.m.)</label>
+          <input class="field-input" type="number" id="sim-dy" value="0.80" step="0.01" max="9999" oninput="calcSim()">
+        </div>
+        <div class="sim-result" id="sim-result" style="display:none">
+          <div class="sim-result-label">Resultado Estimado</div>
+          <div class="sim-result-grid">
+            <div class="sim-stat"><div class="sim-stat-label">Total Investido</div><div class="sim-stat-value" id="sim-r-total">—</div></div>
+            <div class="sim-stat"><div class="sim-stat-label">Patrimônio</div><div class="sim-stat-value" id="sim-r-patrim">—</div></div>
+            <div class="sim-stat"><div class="sim-stat-label">Renda/mês</div><div class="sim-stat-value" id="sim-r-renda">—</div></div>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="calcSim()">Calcular Projeção</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ AÇÕES ============ -->
+<div class="screen" id="screen-acoes">
+  <div class="app-header">
+    <div class="header-row">
+      <div><h1>Ações</h1><div class="subtitle" id="acao-header-sub">Carteira</div></div>
+      <button class="header-btn" onclick="openModal('modal-add-acao')">＋</button>
+    </div>
+  </div>
+  <div class="scroll-area">
+    <div id="acao-list">
+      <div class="empty-state"><div class="empty-icon">📈</div><div class="empty-title">Nenhuma ação</div><div class="empty-sub">Toque em + para adicionar</div></div>
+    </div>
+    <!-- Venda parcial -->
+    <div class="section-header">Simular Venda</div>
+    <div class="card">
+      <div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px;">
+        <div class="field-group">
+          <label class="field-label">Ticker</label>
+          <select class="field-input" id="venda-ticker" style="max-width:100%"></select>
+        </div>
+        <div class="row-2">
+          <div class="field-group">
+            <label class="field-label">Qtd a vender</label>
+            <input class="field-input" type="number" id="venda-qtd" max="9999999" oninput="calcVenda()">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Preço venda (R$)</label>
+            <input class="field-input" type="number" id="venda-preco" step="0.01" max="9999999" oninput="calcVenda()">
+          </div>
+        </div>
+        <div class="sim-result" id="venda-result" style="display:none">
+          <div class="sim-result-label">Resultado da Venda</div>
+          <div class="sim-result-grid">
+            <div class="sim-stat"><div class="sim-stat-label">Lucro/Prej.</div><div class="sim-stat-value" id="venda-lucro">—</div></div>
+            <div class="sim-stat"><div class="sim-stat-label">PM mantido</div><div class="sim-stat-value" id="venda-pm">—</div></div>
+            <div class="sim-stat"><div class="sim-stat-label">Cotas restantes</div><div class="sim-stat-value" id="venda-resto">—</div></div>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="calcVenda()">Simular</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ DÓLAR ============ -->
+<div class="screen" id="screen-dolar">
+  <div class="app-header">
+    <div class="header-row">
+      <div><h1>Dólar</h1><div class="subtitle" id="dolar-header-sub">Posição em USD</div></div>
+      <button class="header-btn" onclick="openModal('modal-add-dolar')">＋</button>
+    </div>
+  </div>
+  <div class="scroll-area">
+    <div class="usd-hero" style="padding:20px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+        <div>
+          <div style="font-size:0.6rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.5px;">Saldo</div>
+          <div style="font-size:1.1rem;font-weight:700;color:white;margin-top:3px;" id="dol-total-usd">$ 0,00</div>
+        </div>
+        <div>
+          <div style="font-size:0.6rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.5px;">PM (R$/USD)</div>
+          <div style="font-size:1.1rem;font-weight:700;color:white;margin-top:3px;" id="dol-pm">R$ —</div>
+        </div>
+        <div>
+          <div style="font-size:0.6rem;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.5px;">Em Reais</div>
+          <div style="font-size:1.1rem;font-weight:700;color:#34C759;margin-top:3px;" id="dol-total-brl">R$ —</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-header">Histórico de Compras</div>
+    <div id="dolar-list">
+      <div class="empty-state"><div class="empty-icon">💵</div><div class="empty-title">Nenhuma compra</div><div class="empty-sub">Adicione suas compras de dólar</div></div>
+    </div>
+
+    <!-- Simulador nova compra -->
+    <div class="section-header">Simular Nova Compra</div>
+    <div class="card">
+      <div style="padding:14px 16px;display:flex;flex-direction:column;gap:10px;">
+        <div class="row-2">
+          <div class="field-group">
+            <label class="field-label">Valor (US$)</label>
+            <input class="field-input" type="number" id="dol-sim-usd" step="0.01" max="9999999" oninput="calcDolSim()">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Taxa (R$/US$)</label>
+            <input class="field-input" type="number" id="dol-sim-taxa" step="0.01" max="9999999" oninput="calcDolSim()">
+          </div>
+        </div>
+        <div class="sim-result" id="dol-sim-result" style="display:none">
+          <div class="sim-result-label">Novo PM após compra</div>
+          <div class="sim-result-grid">
+            <div class="sim-stat"><div class="sim-stat-label">PM atual</div><div class="sim-stat-value" id="dol-sim-pm-atual">—</div></div>
+            <div class="sim-stat"><div class="sim-stat-label">Novo PM</div><div class="sim-stat-value" id="dol-sim-novo-pm">—</div></div>
+            <div class="sim-stat"><div class="sim-stat-label">Total USD</div><div class="sim-stat-value" id="dol-sim-total">—</div></div>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="calcDolSim()">Simular</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ SETTINGS ============ -->
+<div class="screen" id="screen-settings">
+  <div class="app-header">
+    <div class="header-row"><h1>Configurações</h1></div>
+  </div>
+  <div class="scroll-area">
+    <div class="section-header">Perfil</div>
+    <div class="settings-section">
+      <div class="settings-row">
+        <span class="settings-label">Nome</span>
+        <input class="settings-input" id="cfg-nome" placeholder="Seu nome" oninput="saveSettings()">
+      </div>
+    </div>
+
+    <div class="section-header">API de Cotações</div>
+    <div class="settings-section">
+      <div class="settings-row" style="flex-direction:column;align-items:flex-start;gap:8px;">
+        <span class="settings-label">Token BRAPI</span>
+        <input class="settings-input" id="cfg-token" placeholder="Cole seu token de brapi.dev" style="max-width:100%;width:100%;" oninput="saveSettings()">
+        <span style="font-size:0.68rem;color:var(--text2);">Obtenha gratuitamente em <b>brapi.dev</b></span>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">Última atualização</span>
+        <span class="settings-value" id="cfg-last-update">—</span>
+      </div>
+      <div class="settings-row" style="padding:12px 16px;">
+        <button class="btn-primary" style="font-size:0.8rem;padding:10px;" onclick="refreshQuotes()">Atualizar Cotações Agora</button>
+      </div>
+    </div>
+
+    <div class="section-header">Dados</div>
+    <div class="settings-section">
+      <div class="settings-row">
+        <span class="settings-label">Exportar dados (JSON)</span>
+        <button class="btn-danger" onclick="exportData()">Exportar</button>
+      </div>
+      <div class="settings-row">
+        <span class="settings-label">Limpar todos os dados</span>
+        <button class="btn-danger" onclick="clearAll()">Limpar</button>
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:20px;color:var(--text3);font-size:0.68rem;">
+      SoloForte Investimentos v1.0<br>GitHub Pages · PWA Offline
+    </div>
+  </div>
+</div>
+
+<!-- ── TAB BAR ── -->
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('dashboard',this)">
+    <span class="tab-icon">🏠</span><span class="tab-label">Início</span>
+  </button>
+  <button class="tab-btn" onclick="showTab('fiis',this)">
+    <span class="tab-icon">🏢</span><span class="tab-label">FIIs</span>
+  </button>
+  <button class="tab-btn" onclick="showTab('acoes',this)">
+    <span class="tab-icon">📈</span><span class="tab-label">Ações</span>
+  </button>
+  <button class="tab-btn" onclick="showTab('dolar',this)">
+    <span class="tab-icon">💵</span><span class="tab-label">Dólar</span>
+  </button>
+  <button class="tab-btn" onclick="showTab('settings',this)">
+    <span class="tab-icon">⚙️</span><span class="tab-label">Config</span>
+  </button>
+</div>
+
+<!-- ============ MODAIS ============ -->
+
+<!-- Modal Add FII -->
+<div class="modal-overlay" id="modal-add-fii" onclick="closeModal(event,'modal-add-fii')">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <span class="modal-title" id="fii-modal-title">Adicionar FII</span>
+      <button class="modal-close" onclick="closeModal(null,'modal-add-fii')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="fii-edit-id">
+      <div class="row-2">
+        <div class="field-group">
+          <label class="field-label">Ticker</label>
+          <input class="field-input" id="fii-ticker" placeholder="XPML11" style="text-transform:uppercase;max-width:100%">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Segmento</label>
+          <select class="field-input" id="fii-seg" style="max-width:100%">
+            <option>Logística</option><option>Shoppings</option><option>CRI</option>
+            <option>Lajes</option><option>Híbrido</option><option>Outros</option>
+          </select>
+        </div>
+      </div>
+      <div class="row-2">
+        <div class="field-group">
+          <label class="field-label">Qtd Cotas</label>
+          <input class="field-input" type="number" id="fii-cotas" placeholder="100" max="9999999">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Preço Médio (R$)</label>
+          <input class="field-input" type="number" id="fii-pm" placeholder="98.50" step="0.01" max="9999999">
+        </div>
+      </div>
+      <div class="row-2">
+        <div class="field-group">
+          <label class="field-label">Rend./Cota (R$)</label>
+          <input class="field-input" type="number" id="fii-rend" placeholder="0.95" step="0.001" max="9999999">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Cotação Atual (R$)</label>
+          <input class="field-input" type="number" id="fii-cotacao" placeholder="Auto BRAPI" step="0.01" max="9999999">
+        </div>
+      </div>
+      <button class="btn-primary" onclick="saveFii()">Salvar FII</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal comprar mais FII -->
+<div class="modal-overlay" id="modal-comprar-fii" onclick="closeModal(event,'modal-comprar-fii')">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <span class="modal-title">Comprar Mais — <span id="comprar-fii-name"></span></span>
+      <button class="modal-close" onclick="closeModal(null,'modal-comprar-fii')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="comprar-fii-id">
+      <div class="row-2">
+        <div class="field-group">
+          <label class="field-label">Qtd de Cotas</label>
+          <input class="field-input" type="number" id="comprar-fii-cotas" placeholder="50" max="9999999">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Preço Pago (R$)</label>
+          <input class="field-input" type="number" id="comprar-fii-preco" placeholder="99.00" step="0.01" max="9999999">
+        </div>
+      </div>
+      <div class="sim-result" style="display:block">
+        <div class="sim-result-label">PM após compra</div>
+        <div style="display:flex;gap:20px;margin-top:6px;">
+          <div class="sim-stat"><div class="sim-stat-label">PM Atual</div><div class="sim-stat-value" id="comprar-pm-atual">—</div></div>
+          <div class="sim-stat"><div class="sim-stat-label">Novo PM</div><div class="sim-stat-value" id="comprar-pm-novo">—</div></div>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="executarCompraFii()">Confirmar Compra</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal detail FII -->
+<div class="modal-overlay" id="modal-detail-fii" onclick="closeModal(event,'modal-detail-fii')">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <span class="modal-title" id="detail-fii-title">—</span>
+      <button class="modal-close" onclick="closeModal(null,'modal-detail-fii')">✕</button>
+    </div>
+    <div class="modal-body" id="detail-fii-body"></div>
+  </div>
+</div>
+
+<!-- Modal Add Ação -->
+<div class="modal-overlay" id="modal-add-acao" onclick="closeModal(event,'modal-add-acao')">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <span class="modal-title" id="acao-modal-title">Adicionar Ação</span>
+      <button class="modal-close" onclick="closeModal(null,'modal-add-acao')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="acao-edit-id">
+      <div class="row-2">
+        <div class="field-group">
+          <label class="field-label">Ticker</label>
+          <input class="field-input" id="acao-ticker" placeholder="PETR4" style="text-transform:uppercase;max-width:100%">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Qtd Ações</label>
+          <input class="field-input" type="number" id="acao-qtd" placeholder="100" max="9999999">
+        </div>
+      </div>
+      <div class="row-2">
+        <div class="field-group">
+          <label class="field-label">Preço Médio (R$)</label>
+          <input class="field-input" type="number" id="acao-pm" placeholder="35.00" step="0.01" max="9999999">
+        </div>
+        <div class="field-group">
+          <label class="field-label">DY Estimado (%a.a.)</label>
+          <input class="field-input" type="number" id="acao-dy" placeholder="6.5" step="0.1" max="9999">
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Cotação Atual (R$)</label>
+        <input class="field-input" type="number" id="acao-cotacao" placeholder="Auto BRAPI" step="0.01" max="9999999">
+      </div>
+      <button class="btn-primary" onclick="saveAcao()">Salvar Ação</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal comprar mais Ação -->
+<div class="modal-overlay" id="modal-comprar-acao" onclick="closeModal(event,'modal-comprar-acao')">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <span class="modal-title">Comprar Mais — <span id="comprar-acao-name"></span></span>
+      <button class="modal-close" onclick="closeModal(null,'modal-comprar-acao')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="comprar-acao-id">
+      <div class="row-2">
+        <div class="field-group">
+          <label class="field-label">Qtd de Ações</label>
+          <input class="field-input" type="number" id="comprar-acao-qtd" max="9999999">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Preço Pago (R$)</label>
+          <input class="field-input" type="number" id="comprar-acao-preco" step="0.01" max="9999999">
+        </div>
+      </div>
+      <div class="sim-result" style="display:block">
+        <div class="sim-result-label">PM após compra</div>
+        <div style="display:flex;gap:20px;margin-top:6px;">
+          <div class="sim-stat"><div class="sim-stat-label">PM Atual</div><div class="sim-stat-value" id="comprar-acao-pm-atual">—</div></div>
+          <div class="sim-stat"><div class="sim-stat-label">Novo PM</div><div class="sim-stat-value" id="comprar-acao-pm-novo">—</div></div>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="executarCompraAcao()">Confirmar Compra</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Add Dólar -->
+<div class="modal-overlay" id="modal-add-dolar" onclick="closeModal(event,'modal-add-dolar')">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <span class="modal-title">Registrar Compra de Dólar</span>
+      <button class="modal-close" onclick="closeModal(null,'modal-add-dolar')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="row-2">
+        <div class="field-group">
+          <label class="field-label">Valor (US$)</label>
+          <input class="field-input" type="number" id="dol-usd" placeholder="500" step="0.01" max="9999999">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Taxa (R$/US$)</label>
+          <input class="field-input" type="number" id="dol-taxa" placeholder="5.80" step="0.01" max="9999999">
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Data</label>
+        <input class="field-input" type="date" id="dol-data" style="max-width:100%">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Observação</label>
+        <input class="field-input" id="dol-obs" placeholder="Opcional">
+      </div>
+      <button class="btn-primary" onclick="saveDolar()">Registrar Compra</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ──
+let state = { fiis:[], acoes:[], dolar:[], settings:{} };
+let quotes = {};
+let fiiFilter = 'Todos';
+
+// ── INIT ──
+function init() {
+  load();
+  const cfg = state.settings;
+  if (cfg.nome) document.getElementById('cfg-nome').value = cfg.nome;
+  if (cfg.token) document.getElementById('cfg-token').value = cfg.token;
+  if (cfg.lastUpdate) document.getElementById('cfg-last-update').textContent = cfg.lastUpdate;
+  setDefaultDate();
+  renderAll();
+}
+
+function setDefaultDate() {
+  const d = new Date().toISOString().split('T')[0];
+  document.getElementById('dol-data').value = d;
+}
+
+// ── PERSIST ──
+function load() {
+  try { state.fiis = JSON.parse(localStorage.getItem('sf_fiis')) || []; } catch(e) { state.fiis = []; }
+  try { state.acoes = JSON.parse(localStorage.getItem('sf_acoes')) || []; } catch(e) { state.acoes = []; }
+  try { state.dolar = JSON.parse(localStorage.getItem('sf_dolar')) || []; } catch(e) { state.dolar = []; }
+  try { state.settings = JSON.parse(localStorage.getItem('sf_settings')) || {}; } catch(e) { state.settings = {}; }
+  try { quotes = JSON.parse(localStorage.getItem('sf_quotes')) || {}; } catch(e) { quotes = {}; }
+}
+
+function save() {
+  localStorage.setItem('sf_fiis', JSON.stringify(state.fiis));
+  localStorage.setItem('sf_acoes', JSON.stringify(state.acoes));
+  localStorage.setItem('sf_dolar', JSON.stringify(state.dolar));
+  localStorage.setItem('sf_settings', JSON.stringify(state.settings));
+  localStorage.setItem('sf_quotes', JSON.stringify(quotes));
+}
+
+function saveSettings() {
+  state.settings.nome = document.getElementById('cfg-nome').value;
+  state.settings.token = document.getElementById('cfg-token').value;
+  save();
+}
+
+// ── NAVIGATION ──
+function showTab(tab, btn) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + tab).classList.add('active');
+  btn.classList.add('active');
+  if (tab === 'acoes') populateVendaSelect();
+  if (tab === 'dashboard') renderDashboard();
+}
+
+// ── MODAIS ──
+function openModal(id, prefill) {
+  document.getElementById(id).classList.add('open');
+}
+
+function closeModal(e, id) {
+  if (!e || e.target === document.getElementById(id)) {
+    document.getElementById(id).classList.remove('open');
+  }
+}
+
+// ── TOAST ──
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── FORMAT ──
+const brl = v => 'R$ ' + (v||0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+const usd = v => '$ ' + (v||0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+const pct = v => (v||0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) + '%';
+
+// ── BRAPI ──
+async function fetchQuote(ticker) {
+  const token = state.settings.token;
+  if (!token) return null;
+  try {
+    const url = `https://brapi.dev/api/quote/${ticker}?token=${token}`;
+    const r = await fetch(url);
+    const d = await r.json();
+    if (d.results && d.results[0]) {
+      const price = d.results[0].regularMarketPrice;
+      quotes[ticker] = price;
+      return price;
+    }
+  } catch(e) {}
+  return null;
+}
+
+async function refreshQuotes() {
+  if (!state.settings.token) { toast('Configure o token BRAPI nas configurações'); return; }
+  toast('Atualizando cotações...');
+  const tickers = [
+    ...state.fiis.map(f => f.ticker),
+    ...state.acoes.map(a => a.ticker),
+    'USDBRL'
+  ];
+  const uniq = [...new Set(tickers)];
+  for (const t of uniq) {
+    await fetchQuote(t);
+    await new Promise(r => setTimeout(r, 200));
+  }
+  const now = new Date().toLocaleString('pt-BR');
+  state.settings.lastUpdate = now;
+  document.getElementById('cfg-last-update').textContent = now;
+  save();
+  renderAll();
+  toast('Cotações atualizadas!');
+}
+
+function getCotacao(ticker, fallback) {
+  return quotes[ticker] || fallback || 0;
+}
+
+function getUsdBrl() {
+  return quotes['USDBRL'] || 0;
+}
+
+// ── FII ──
+function saveFii() {
+  const ticker = document.getElementById('fii-ticker').value.toUpperCase().trim();
+  const seg = document.getElementById('fii-seg').value;
+  const cotas = parseFloat(document.getElementById('fii-cotas').value) || 0;
+  const pm = parseFloat(document.getElementById('fii-pm').value) || 0;
+  const rend = parseFloat(document.getElementById('fii-rend').value) || 0;
+  const cotacao = parseFloat(document.getElementById('fii-cotacao').value) || 0;
+  if (!ticker || cotas <= 0 || pm <= 0) { toast('Preencha ticker, cotas e PM'); return; }
+
+  const editId = document.getElementById('fii-edit-id').value;
+  if (editId) {
+    const idx = state.fiis.findIndex(f => f.id == editId);
+    if (idx >= 0) { state.fiis[idx] = {...state.fiis[idx], ticker, seg, cotas, pm, rend, cotacao: cotacao || state.fiis[idx].cotacao }; }
+  } else {
+    state.fiis.push({ id: Date.now(), ticker, seg, cotas, pm, rend, cotacao });
+  }
+  if (cotacao) quotes[ticker] = cotacao;
+  save(); renderFiis(); renderDashboard();
+  closeModal(null, 'modal-add-fii');
+  clearFiiForm();
+  toast(editId ? 'FII atualizado!' : 'FII adicionado!');
+}
+
+function clearFiiForm() {
+  ['fii-ticker','fii-cotas','fii-pm','fii-rend','fii-cotacao'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('fii-edit-id').value = '';
+  document.getElementById('fii-modal-title').textContent = 'Adicionar FII';
+}
+
+function editFii(id) {
+  const f = state.fiis.find(x => x.id == id);
+  if (!f) return;
+  document.getElementById('fii-edit-id').value = f.id;
+  document.getElementById('fii-ticker').value = f.ticker;
+  document.getElementById('fii-seg').value = f.seg;
+  document.getElementById('fii-cotas').value = f.cotas;
+  document.getElementById('fii-pm').value = f.pm;
+  document.getElementById('fii-rend').value = f.rend;
+  document.getElementById('fii-cotacao').value = f.cotacao || '';
+  document.getElementById('fii-modal-title').textContent = 'Editar FII';
+  closeModal(null, 'modal-detail-fii');
+  openModal('modal-add-fii');
+}
+
+function deleteFii(id) {
+  if (!confirm('Remover este FII?')) return;
+  state.fiis = state.fiis.filter(f => f.id != id);
+  save(); renderFiis(); renderDashboard();
+  closeModal(null, 'modal-detail-fii');
+  toast('FII removido');
+}
+
+function openComprarFii(id) {
+  const f = state.fiis.find(x => x.id == id);
+  if (!f) return;
+  document.getElementById('comprar-fii-id').value = f.id;
+  document.getElementById('comprar-fii-name').textContent = f.ticker;
+  document.getElementById('comprar-pm-atual').textContent = brl(f.pm);
+  document.getElementById('comprar-pm-novo').textContent = '—';
+  document.getElementById('comprar-fii-cotas').value = '';
+  document.getElementById('comprar-fii-preco').value = '';
+  closeModal(null, 'modal-detail-fii');
+  openModal('modal-comprar-fii');
+
+  // live preview PM
+  ['comprar-fii-cotas','comprar-fii-preco'].forEach(inp => {
+    document.getElementById(inp).oninput = () => {
+      const c = parseFloat(document.getElementById('comprar-fii-cotas').value) || 0;
+      const p = parseFloat(document.getElementById('comprar-fii-preco').value) || 0;
+      if (c && p) {
+        const newPm = (f.cotas * f.pm + c * p) / (f.cotas + c);
+        document.getElementById('comprar-pm-novo').textContent = brl(newPm);
+      }
+    };
+  });
+}
+
+function executarCompraFii() {
+  const id = document.getElementById('comprar-fii-id').value;
+  const c = parseFloat(document.getElementById('comprar-fii-cotas').value) || 0;
+  const p = parseFloat(document.getElementById('comprar-fii-preco').value) || 0;
+  if (!c || !p) { toast('Preencha cotas e preço'); return; }
+  const idx = state.fiis.findIndex(f => f.id == id);
+  if (idx < 0) return;
+  const f = state.fiis[idx];
+  const newPm = (f.cotas * f.pm + c * p) / (f.cotas + c);
+  state.fiis[idx].pm = Math.round(newPm * 100) / 100;
+  state.fiis[idx].cotas += c;
+  save(); renderFiis(); renderDashboard();
+  closeModal(null, 'modal-comprar-fii');
+  toast('Compra registrada! PM atualizado.');
+}
+
+function openDetailFii(id) {
+  const f = state.fiis.find(x => x.id == id);
+  if (!f) return;
+  const cotacao = getCotacao(f.ticker, f.cotacao);
+  const patrimonioAtual = cotacao * f.cotas;
+  const patrimonioInvest = f.pm * f.cotas;
+  const varAbs = patrimonioAtual - patrimonioInvest;
+  const varPct = patrimonioInvest ? (varAbs / patrimonioInvest) * 100 : 0;
+  const rendaMes = f.rend * f.cotas;
+  const yoc = f.pm > 0 ? (f.rend / f.pm) * 100 : 0;
+  const dyAtual = cotacao > 0 ? (f.rend / cotacao) * 100 : 0;
+
+  document.getElementById('detail-fii-title').textContent = f.ticker + ' · ' + f.seg;
+  document.getElementById('detail-fii-body').innerHTML = `
+    <div class="card" style="box-shadow:none;border:1px solid var(--border);">
+      <div style="padding:2px 0;">
+        <div class="info-row"><span class="info-row-label">Cotas</span><span class="info-row-value">${f.cotas}</span></div>
+        <div class="info-row"><span class="info-row-label">Preço Médio</span><span class="info-row-value">${brl(f.pm)}</span></div>
+        <div class="info-row"><span class="info-row-label">Cotação Atual</span><span class="info-row-value">${cotacao ? brl(cotacao) : '—'}</span></div>
+        <div class="info-row"><span class="info-row-label">Patrimônio Investido</span><span class="info-row-value">${brl(patrimonioInvest)}</span></div>
+        <div class="info-row"><span class="info-row-label">Patrimônio Atual</span><span class="info-row-value">${cotacao ? brl(patrimonioAtual) : '—'}</span></div>
+        <div class="info-row"><span class="info-row-label">Variação</span><span class="info-row-value" style="color:${varAbs>=0?'var(--green-dark)':'var(--red)'}">${varAbs>=0?'+':''}${brl(varAbs)} (${varPct>=0?'+':''}${pct(varPct)})</span></div>
+        <div class="info-row"><span class="info-row-label">Rendimento/Cota</span><span class="info-row-value">${brl(f.rend)}</span></div>
+        <div class="info-row"><span class="info-row-label">Renda Mensal</span><span class="info-row-value" style="color:var(--green-dark)">${brl(rendaMes)}</span></div>
+        <div class="info-row"><span class="info-row-label">YoC (yield on cost)</span><span class="info-row-value">${pct(yoc)}</span></div>
+        <div class="info-row"><span class="info-row-label">DY Atual</span><span class="info-row-value">${pct(dyAtual)}</span></div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="openComprarFii(${f.id})">+ Comprar Mais Cotas</button>
+    <div style="display:flex;gap:8px;">
+      <button class="btn-outline" style="flex:1" onclick="editFii(${f.id})">Editar</button>
+      <button class="btn-danger" style="flex:1" onclick="deleteFii(${f.id})">Remover</button>
+    </div>
+  `;
+  openModal('modal-detail-fii');
+}
+
+function filterFii(seg, el) {
+  fiiFilter = seg;
+  document.querySelectorAll('#fii-chips .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderFiis();
+}
+
+function renderFiis() {
+  const filtered = fiiFilter === 'Todos' ? state.fiis : state.fiis.filter(f => f.seg === fiiFilter);
+  const total = state.fiis.reduce((s, f) => s + f.rend * f.cotas, 0);
+  document.getElementById('fii-total-header').textContent = 'Renda: ' + brl(total) + '/mês';
+
+  const list = document.getElementById('fii-list');
+  if (!filtered.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">🏢</div><div class="empty-title">Nenhum FII</div><div class="empty-sub">Toque em + para adicionar</div></div>`;
+    return;
+  }
+  list.innerHTML = `<div class="card">${filtered.map(f => {
+    const cotacao = getCotacao(f.ticker, f.cotacao);
+    const renda = f.rend * f.cotas;
+    const yoc = f.pm > 0 ? (f.rend / f.pm) * 100 : 0;
+    const var_ = cotacao && f.pm ? ((cotacao - f.pm)/f.pm*100) : null;
+    return `<div class="card-row" onclick="openDetailFii(${f.id})">
+      <div class="asset-icon fii">${f.ticker.replace('11','')}</div>
+      <div class="asset-info">
+        <div class="asset-name">${f.ticker}</div>
+        <div class="asset-detail">${f.cotas} cotas · PM ${brl(f.pm)} · ${f.seg}</div>
+      </div>
+      <div class="asset-values">
+        <div class="asset-price">${brl(renda)}<span style="font-size:0.65rem;color:var(--text2)">/mês</span></div>
+        <div class="asset-yield">YoC ${pct(yoc)}</div>
+        ${var_ !== null ? `<div class="asset-yield ${var_<0?'asset-neg':''}" style="margin-top:2px">${var_>=0?'+':''}${pct(var_)}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+// ── AÇÕES ──
+function saveAcao() {
+  const ticker = document.getElementById('acao-ticker').value.toUpperCase().trim();
+  const qtd = parseFloat(document.getElementById('acao-qtd').value) || 0;
+  const pm = parseFloat(document.getElementById('acao-pm').value) || 0;
+  const dy = parseFloat(document.getElementById('acao-dy').value) || 0;
+  const cotacao = parseFloat(document.getElementById('acao-cotacao').value) || 0;
+  if (!ticker || qtd <= 0 || pm <= 0) { toast('Preencha ticker, qtd e PM'); return; }
+
+  const editId = document.getElementById('acao-edit-id').value;
+  if (editId) {
+    const idx = state.acoes.findIndex(a => a.id == editId);
+    if (idx >= 0) state.acoes[idx] = {...state.acoes[idx], ticker, qtd, pm, dy, cotacao: cotacao || state.acoes[idx].cotacao };
+  } else {
+    state.acoes.push({ id: Date.now(), ticker, qtd, pm, dy, cotacao });
+  }
+  if (cotacao) quotes[ticker] = cotacao;
+  save(); renderAcoes(); renderDashboard(); populateVendaSelect();
+  closeModal(null, 'modal-add-acao');
+  clearAcaoForm();
+  toast(editId ? 'Ação atualizada!' : 'Ação adicionada!');
+}
+
+function clearAcaoForm() {
+  ['acao-ticker','acao-qtd','acao-pm','acao-dy','acao-cotacao'].forEach(id => { document.getElementById(id).value = ''; });
+  document.getElementById('acao-edit-id').value = '';
+  document.getElementById('acao-modal-title').textContent = 'Adicionar Ação';
+}
+
+function openComprarAcao(id) {
+  const a = state.acoes.find(x => x.id == id);
+  if (!a) return;
+  document.getElementById('comprar-acao-id').value = a.id;
+  document.getElementById('comprar-acao-name').textContent = a.ticker;
+  document.getElementById('comprar-acao-pm-atual').textContent = brl(a.pm);
+  document.getElementById('comprar-acao-pm-novo').textContent = '—';
+  ['comprar-acao-qtd','comprar-acao-preco'].forEach(inp => {
+    document.getElementById(inp).oninput = () => {
+      const q = parseFloat(document.getElementById('comprar-acao-qtd').value) || 0;
+      const p = parseFloat(document.getElementById('comprar-acao-preco').value) || 0;
+      if (q && p) {
+        const newPm = (a.qtd * a.pm + q * p) / (a.qtd + q);
+        document.getElementById('comprar-acao-pm-novo').textContent = brl(newPm);
+      }
+    };
+  });
+  openModal('modal-comprar-acao');
+}
+
+function executarCompraAcao() {
+  const id = document.getElementById('comprar-acao-id').value;
+  const q = parseFloat(document.getElementById('comprar-acao-qtd').value) || 0;
+  const p = parseFloat(document.getElementById('comprar-acao-preco').value) || 0;
+  if (!q || !p) { toast('Preencha quantidade e preço'); return; }
+  const idx = state.acoes.findIndex(a => a.id == id);
+  if (idx < 0) return;
+  const a = state.acoes[idx];
+  const newPm = (a.qtd * a.pm + q * p) / (a.qtd + q);
+  state.acoes[idx].pm = Math.round(newPm * 100) / 100;
+  state.acoes[idx].qtd += q;
+  save(); renderAcoes(); renderDashboard();
+  closeModal(null, 'modal-comprar-acao');
+  toast('Compra registrada! PM recalculado.');
+}
+
+function deleteAcao(id) {
+  if (!confirm('Remover esta ação?')) return;
+  state.acoes = state.acoes.filter(a => a.id != id);
+  save(); renderAcoes(); renderDashboard(); populateVendaSelect();
+  toast('Ação removida');
+}
+
+function renderAcoes() {
+  const list = document.getElementById('acao-list');
+  if (!state.acoes.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">📈</div><div class="empty-title">Nenhuma ação</div><div class="empty-sub">Toque em + para adicionar</div></div>`;
+    document.getElementById('acao-header-sub').textContent = 'Carteira';
+    return;
+  }
+  const totalInvest = state.acoes.reduce((s,a) => s + a.pm * a.qtd, 0);
+  const totalAtual = state.acoes.reduce((s,a) => s + getCotacao(a.ticker, a.cotacao) * a.qtd, 0);
+  const varTot = totalInvest ? ((totalAtual-totalInvest)/totalInvest*100) : 0;
+  document.getElementById('acao-header-sub').textContent = `${brl(totalInvest)} investido · ${varTot>=0?'+':''}${pct(varTot)}`;
+
+  list.innerHTML = `<div class="card">${state.acoes.map(a => {
+    const cotacao = getCotacao(a.ticker, a.cotacao);
+    const var_ = cotacao && a.pm ? ((cotacao - a.pm)/a.pm*100) : null;
+    const dividendo = a.dy > 0 ? (a.pm * a.qtd * a.dy / 100) : 0;
+    return `<div class="card-row" onclick="openDetailAcao(${a.id})">
+      <div class="asset-icon acao">${a.ticker.slice(0,4)}</div>
+      <div class="asset-info">
+        <div class="asset-name">${a.ticker}</div>
+        <div class="asset-detail">${a.qtd} ações · PM ${brl(a.pm)}</div>
+      </div>
+      <div class="asset-values">
+        <div class="asset-price">${cotacao ? brl(cotacao) : 'Sem cotação'}</div>
+        ${var_ !== null ? `<div class="asset-yield ${var_<0?'asset-neg':''}">${var_>=0?'+':''}${pct(var_)}</div>` : ''}
+        ${a.dy ? `<div style="font-size:0.65rem;color:var(--text2);margin-top:1px">DY ${pct(a.dy)}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function openDetailAcao(id) {
+  const a = state.acoes.find(x => x.id == id);
+  if (!a) return;
+  openComprarAcao(id);
+}
+
+function populateVendaSelect() {
+  const sel = document.getElementById('venda-ticker');
+  sel.innerHTML = state.acoes.length
+    ? state.acoes.map(a => `<option value="${a.id}">${a.ticker}</option>`).join('')
+    : '<option value="">Nenhuma ação</option>';
+}
+
+function calcVenda() {
+  const id = document.getElementById('venda-ticker').value;
+  const a = state.acoes.find(x => x.id == id);
+  if (!a) return;
+  const qtdV = parseFloat(document.getElementById('venda-qtd').value) || 0;
+  const precoV = parseFloat(document.getElementById('venda-preco').value) || 0;
+  if (!qtdV || !precoV) return;
+  const recebido = qtdV * precoV;
+  const custoPm = qtdV * a.pm;
+  const lucro = recebido - custoPm;
+  const resto = a.qtd - qtdV;
+  document.getElementById('venda-lucro').textContent = (lucro>=0?'+':'') + brl(lucro);
+  document.getElementById('venda-pm').textContent = brl(a.pm); // venda NÃO altera PM — regra B3
+  document.getElementById('venda-resto').textContent = Math.max(0,resto);
+  document.getElementById('venda-lucro').style.color = lucro >= 0 ? 'var(--green-dark)' : 'var(--red)';
+  document.getElementById('venda-result').style.display = 'block';
+}
+
+// ── DÓLAR ──
+function saveDolar() {
+  const usdVal = parseFloat(document.getElementById('dol-usd').value) || 0;
+  const taxa = parseFloat(document.getElementById('dol-taxa').value) || 0;
+  const data = document.getElementById('dol-data').value;
+  const obs = document.getElementById('dol-obs').value;
+  if (!usdVal || !taxa) { toast('Preencha valor e taxa'); return; }
+  state.dolar.push({ id: Date.now(), usd: usdVal, taxa, data, obs });
+  save(); renderDolar(); renderDashboard();
+  closeModal(null, 'modal-add-dolar');
+  ['dol-usd','dol-taxa','dol-obs'].forEach(id => { document.getElementById(id).value = ''; });
+  setDefaultDate();
+  toast('Compra de dólar registrada!');
+}
+
+function deleteDolar(id) {
+  state.dolar = state.dolar.filter(d => d.id != id);
+  save(); renderDolar(); renderDashboard();
+  toast('Removido');
+}
+
+function calcDolPm() {
+  if (!state.dolar.length) return { pm: 0, totalUsd: 0, totalBrl: 0 };
+  const totalUsd = state.dolar.reduce((s,d) => s + d.usd, 0);
+  const totalBrl = state.dolar.reduce((s,d) => s + d.usd * d.taxa, 0);
+  const pm = totalBrl / totalUsd;
+  return { pm, totalUsd, totalBrl };
+}
+
+function calcDolSim() {
+  const { pm, totalUsd } = calcDolPm();
+  const novoUsd = parseFloat(document.getElementById('dol-sim-usd').value) || 0;
+  const novaTaxa = parseFloat(document.getElementById('dol-sim-taxa').value) || 0;
+  if (!novoUsd || !novaTaxa) return;
+  const totalBrlAtual = state.dolar.reduce((s,d) => s + d.usd * d.taxa, 0);
+  const novoPm = totalUsd ? (totalBrlAtual + novoUsd * novaTaxa) / (totalUsd + novoUsd) : novaTaxa;
+  document.getElementById('dol-sim-pm-atual').textContent = pm ? brl(pm) : '—';
+  document.getElementById('dol-sim-novo-pm').textContent = brl(novoPm);
+  document.getElementById('dol-sim-total').textContent = usd(totalUsd + novoUsd);
+  document.getElementById('dol-sim-result').style.display = 'block';
+}
+
+function renderDolar() {
+  const { pm, totalUsd, totalBrl } = calcDolPm();
+  const usdBrl = getUsdBrl();
+  const valorAtual = usdBrl ? totalUsd * usdBrl : 0;
+
+  document.getElementById('dol-total-usd').textContent = usd(totalUsd);
+  document.getElementById('dol-pm').textContent = pm ? brl(pm) : '—';
+  document.getElementById('dol-total-brl').textContent = valorAtual ? brl(valorAtual) : brl(totalBrl) + ' (custo)';
+  document.getElementById('dolar-header-sub').textContent = `Posição: ${usd(totalUsd)}`;
+
+  const list = document.getElementById('dolar-list');
+  if (!state.dolar.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">💵</div><div class="empty-title">Nenhuma compra</div><div class="empty-sub">Adicione suas compras de dólar</div></div>`;
+    return;
+  }
+  list.innerHTML = `<div class="card" style="display:flex;flex-direction:column;gap:8px;padding:12px 14px;">${
+    [...state.dolar].reverse().map(d => `
+      <div class="compra-item">
+        <div>
+          <div class="compra-info">$ ${d.usd.toLocaleString('pt-BR',{minimumFractionDigits:2})} · R$ ${d.taxa.toLocaleString('pt-BR',{minimumFractionDigits:2})}/$ · ${brl(d.usd*d.taxa)}</div>
+          <div class="compra-date">${d.data || '—'}${d.obs ? ' · '+d.obs : ''}</div>
+        </div>
+        <button class="compra-del" onclick="deleteDolar(${d.id})">✕</button>
+      </div>
+    `).join('')
+  }</div>`;
+}
+
+// ── SIMULADOR FII ──
+function calcSim() {
+  const aporte = parseFloat(document.getElementById('sim-aporte').value) || 0;
+  const prazo = parseInt(document.getElementById('sim-prazo').value) || 0;
+  const dyMes = parseFloat(document.getElementById('sim-dy').value) || 0;
+  if (!aporte || !prazo) return;
+
+  let patrimonioAcum = state.fiis.reduce((s,f) => s + f.pm * f.cotas, 0);
+  const dyDecimal = dyMes / 100;
+  let totalAportado = 0;
+
+  for (let m = 0; m < prazo; m++) {
+    const rendimento = patrimonioAcum * dyDecimal;
+    patrimonioAcum += aporte + rendimento;
+    totalAportado += aporte;
+  }
+  const rendaMes = patrimonioAcum * dyDecimal;
+  document.getElementById('sim-r-total').textContent = brl(totalAportado);
+  document.getElementById('sim-r-patrim').textContent = brl(patrimonioAcum);
+  document.getElementById('sim-r-renda').textContent = brl(rendaMes);
+  document.getElementById('sim-result').style.display = 'block';
+}
+
+// ── DASHBOARD ──
+function renderDashboard() {
+  // FIIs
+  const totalFiiInvest = state.fiis.reduce((s,f) => s + f.pm * f.cotas, 0);
+  const totalFiiAtual = state.fiis.reduce((s,f) => s + getCotacao(f.ticker,f.cotacao)*f.cotas, 0);
+  const rendaMes = state.fiis.reduce((s,f) => s + f.rend*f.cotas, 0);
+
+  // Ações
+  const totalAcaoInvest = state.acoes.reduce((s,a) => s + a.pm*a.qtd, 0);
+  const totalAcaoAtual = state.acoes.reduce((s,a) => s + getCotacao(a.ticker,a.cotacao)*a.qtd, 0);
+
+  // Dólar
+  const { totalUsd, totalBrl: totalDolCusto } = calcDolPm();
+  const usdBrl = getUsdBrl();
+  const totalDolAtual = usdBrl ? totalUsd * usdBrl : totalDolCusto;
+
+  const usaAtual = (totalFiiAtual||totalFiiInvest) + (totalAcaoAtual||totalAcaoInvest) + totalDolAtual;
+  const patrimonio = usaAtual;
+
+  document.getElementById('dash-patrimonio').textContent = brl(patrimonio);
+  document.getElementById('dash-total-fii').textContent = brl(totalFiiAtual || totalFiiInvest);
+  document.getElementById('dash-total-acoes').textContent = brl(totalAcaoAtual || totalAcaoInvest);
+  document.getElementById('dash-total-dolar').textContent = usd(totalUsd);
+  document.getElementById('dash-renda').textContent = brl(rendaMes);
+  document.getElementById('dash-renda-sub').textContent = `${state.fiis.length} FII(s) · estimado`;
+
+  // USD rate
+  if (usdBrl) {
+    document.getElementById('dash-usd-rate').textContent = brl(usdBrl);
+    document.getElementById('dash-usd-time').textContent = 'Cotação BRAPI atualizada';
+  }
+
+  // Distribuição
+  const fiiV = totalFiiAtual || totalFiiInvest;
+  const acaoV = totalAcaoAtual || totalAcaoInvest;
+  const dolV = totalDolAtual;
+  const tot = fiiV + acaoV + dolV || 1;
+  const fP = (fiiV/tot*100).toFixed(1);
+  const aP = (acaoV/tot*100).toFixed(1);
+  const dP = (dolV/tot*100).toFixed(1);
+  document.getElementById('dist-fii').style.width = fP+'%';
+  document.getElementById('dist-acao').style.width = aP+'%';
+  document.getElementById('dist-dol').style.width = dP+'%';
+  document.getElementById('dist-fii-pct').textContent = fP+'%';
+  document.getElementById('dist-acao-pct').textContent = aP+'%';
+  document.getElementById('dist-dol-pct').textContent = dP+'%';
+
+  // Top FIIs
+  const sorted = [...state.fiis].sort((a,b) => (b.rend*b.cotas) - (a.rend*a.cotas)).slice(0,5);
+  const topEl = document.getElementById('dash-top-fiis');
+  if (!sorted.length) {
+    topEl.innerHTML = `<div class="empty-state"><div class="empty-icon">🏢</div><div class="empty-sub">Adicione FIIs para ver aqui</div></div>`;
+  } else {
+    topEl.innerHTML = `<div>${sorted.map(f => {
+      const renda = f.rend * f.cotas;
+      const yoc = f.pm > 0 ? (f.rend/f.pm*100) : 0;
+      return `<div class="card-row">
+        <div class="asset-icon fii">${f.ticker.replace('11','')}</div>
+        <div class="asset-info"><div class="asset-name">${f.ticker}</div><div class="asset-detail">${f.cotas} cotas · ${f.seg}</div></div>
+        <div class="asset-values"><div class="asset-price">${brl(renda)}/mês</div><div class="asset-yield">YoC ${pct(yoc)}</div></div>
+      </div>`;
+    }).join('')}</div>`;
+  }
+
+  // Saudação
+  const nome = state.settings.nome;
+  const h = new Date().getHours();
+  const saud = h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite';
+  document.getElementById('dash-greeting').textContent = nome ? `${saud}, ${nome.split(' ')[0]}` : 'Investimentos';
+}
+
+// ── RENDER ALL ──
+function renderAll() {
+  renderDashboard();
+  renderFiis();
+  renderAcoes();
+  renderDolar();
+  populateVendaSelect();
+}
+
+// ── UTILS ──
+function exportData() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'soloforte-investimentos.json';
+  a.click();
+}
+
+function clearAll() {
+  if (!confirm('Apagar todos os dados? Esta ação não pode ser desfeita.')) return;
+  localStorage.clear();
+  state = { fiis:[], acoes:[], dolar:[], settings:{} };
+  quotes = {};
+  renderAll();
+  toast('Dados removidos');
+}
+
+// ── PWA ──
+if ('serviceWorker' in navigator) {
+  const sw = `
+    const CACHE = 'soloforte-v1';
+    const ASSETS = ['/'];
+    self.addEventListener('install', e => e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS))));
+    self.addEventListener('fetch', e => e.respondWith(caches.match(e.request).then(r => r || fetch(e.request).catch(() => caches.match('/')))));
+  `;
+  const blob = new Blob([sw], {type:'application/javascript'});
+  const url = URL.createObjectURL(blob);
+  navigator.serviceWorker.register(url).catch(()=>{});
+}
+
+init();
+</script>
+</body>
+</html>
